@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Expense;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
 class ExpenseRepository
@@ -12,11 +13,11 @@ class ExpenseRepository
         return Expense::create($data);
     }
 
-    public function getAllByUser(int $userId): Collection
+    public function getAllByUser(int $userId, int $perPage = 15): LengthAwarePaginator
     {
         return Expense::where('user_id', $userId)
             ->orderByDesc('expense_date')
-            ->get();
+            ->paginate($perPage);
     }
 
     public function findByIdForUser(int $id, int $userId): ?Expense
@@ -76,5 +77,14 @@ class ExpenseRepository
         }
 
         return (float) $query->sum('amount');
+    }
+
+    public function getSummaryByCategory(int $userId): Collection
+    {
+        return Expense::join('categories', 'expenses.category_id', '=', 'categories.id')
+            ->where('expenses.user_id', $userId)
+            ->selectRaw('categories.name as category, sum(expenses.amount) as total')
+            ->groupBy('categories.name')
+            ->get();
     }
 }

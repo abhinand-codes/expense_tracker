@@ -75,4 +75,13 @@ class ExpenseController extends Controller
             'total' => $total,
         ]);
     }
+
+    public function summary()
+    {
+        $summary = $this->expenseService->summary();
+
+        return response()->json([
+            'summary' => $summary,
+        ]);
+    }
 }

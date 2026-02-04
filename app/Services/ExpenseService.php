@@ -21,16 +21,16 @@ class ExpenseService
         return $this->expenseRepository->create($data);
     }
 
-    public function listForUser()
+    public function listForUser(int $perPage = 15)
     {
-        return $this->expenseRepository->getAllByUser(auth()->id());
+        return $this->expenseRepository->getAllByUser(auth()->id(), $perPage);
     }
 
     public function getForUser(int $id): Expense
     {
         $expense = $this->expenseRepository->findByIdForUser($id, auth()->id());
 
-        if (! $expense) {
+        if (!$expense) {
             abort(404, 'Expense not found');
         }
 
@@ -45,7 +45,7 @@ class ExpenseService
             $data
         );
 
-        if (! $updated) {
+        if (!$updated) {
             abort(404, 'Expense not found');
         }
     }
@@ -57,7 +57,7 @@ class ExpenseService
             auth()->id()
         );
 
-        if (! $deleted) {
+        if (!$deleted) {
             abort(404, 'Expense not found');
         }
     }
@@ -78,5 +78,10 @@ class ExpenseService
             $filters['from_date'] ?? null,
             $filters['to_date'] ?? null
         );
+    }
+
+    public function summary()
+    {
+        return $this->expenseRepository->getSummaryByCategory(auth()->id());
     }
 }
