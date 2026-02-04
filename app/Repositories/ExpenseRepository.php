@@ -3,51 +3,78 @@
 namespace App\Repositories;
 
 use App\Models\Expense;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 
 class ExpenseRepository
 {
-   public function create(array $data): Expense
-{
-    return Expense::create($data);
-}
-
+    public function create(array $data): Expense
+    {
+        return Expense::create($data);
+    }
 
     public function getAllByUser(int $userId): Collection
     {
-        return Expense::where('user_id', $userId)->get();
+        return Expense::where('user_id', $userId)
+            ->orderByDesc('expense_date')
+            ->get();
     }
 
-    public function findByIdAndUser(int $id, int $userId): ?Expense
+    public function findByIdForUser(int $id, int $userId): ?Expense
     {
         return Expense::where('id', $id)
             ->where('user_id', $userId)
             ->first();
     }
 
-    public function update(Expense $expense, array $data): Expense
+    public function updateForUser(int $id, int $userId, array $data): bool
     {
-        $expense->update($data);
-        return $expense;
+        return Expense::where('id', $id)
+            ->where('user_id', $userId)
+            ->update($data) > 0;
     }
 
-    public function delete(Expense $expense): bool
+    public function deleteForUser(int $id, int $userId): bool
     {
-        return (bool) $expense->delete();
+        return Expense::where('id', $id)
+            ->where('user_id', $userId)
+            ->delete() > 0;
     }
 
-    public function getAllByUser(int $userId)
-{
-    return Expense::where('user_id', $userId)
-        ->orderByDesc('expense_date')
-        ->get();
-}
+    public function filterByDateRange(
+        int $userId,
+        ?string $fromDate,
+        ?string $toDate
+    ): Collection {
+        $query = Expense::where('user_id', $userId);
 
-public function findByIdForUser(int $id, int $userId): ?Expense
-{
-    return Expense::where('id', $id)
-        ->where('user_id', $userId)
-        ->first();
-}
+        if ($fromDate) {
+            $query->whereDate('expense_date', '>=', $fromDate);
+        }
 
+        if ($toDate) {
+            $query->whereDate('expense_date', '<=', $toDate);
+        }
+
+        return $query
+            ->orderByDesc('expense_date')
+            ->get();
+    }
+
+    public function totalByDateRange(
+        int $userId,
+        ?string $fromDate,
+        ?string $toDate
+    ): float {
+        $query = Expense::where('user_id', $userId);
+
+        if ($fromDate) {
+            $query->whereDate('expense_date', '>=', $fromDate);
+        }
+
+        if ($toDate) {
+            $query->whereDate('expense_date', '<=', $toDate);
+        }
+
+        return (float) $query->sum('amount');
+    }
 }

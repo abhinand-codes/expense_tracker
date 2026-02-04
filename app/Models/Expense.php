@@ -21,9 +21,4 @@ class Expense extends Model
         'expense_date' => 'date',
         'amount' => 'decimal:2',
     ];
-
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreExpenseRequest;
 use App\Http\Requests\UpdateExpenseRequest;
+use App\Http\Requests\FilterExpenseRequest;
 use App\Http\Resources\ExpenseResource;
 use App\Services\ExpenseService;
 
@@ -56,6 +57,22 @@ class ExpenseController extends Controller
 
         return response()->json([
             'message' => 'Expense deleted successfully',
+        ]);
+    }
+
+    public function filter(FilterExpenseRequest $request)
+    {
+        $expenses = $this->expenseService->filter($request->validated());
+
+        return ExpenseResource::collection($expenses);
+    }
+
+    public function total(FilterExpenseRequest $request)
+    {
+        $total = $this->expenseService->total($request->validated());
+
+        return response()->json([
+            'total' => $total,
         ]);
     }
 }
