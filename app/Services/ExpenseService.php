@@ -17,11 +17,12 @@ class ExpenseService
         $this->expenseRepository = $expenseRepository;
     }
 
-    public function create(array $data): Expense
-    {
-        $data['user_id'] = Auth::id();
-        return $this->expenseRepository->create($data);
-    }
+   public function create(array $data): Expense
+{
+    $data['user_id'] = auth()->id();
+
+    return $this->expenseRepository->create($data);
+}
 
     public function list(): Collection
     {
@@ -50,4 +51,21 @@ class ExpenseService
         $expense = $this->get($id);
         return $this->expenseRepository->delete($expense);
     }
+
+    public function listForUser(): \Illuminate\Support\Collection
+{
+    return $this->expenseRepository->getAllByUser(auth()->id());
+}
+
+public function getForUser(int $id): Expense
+{
+    $expense = $this->expenseRepository->findByIdForUser($id, auth()->id());
+
+    if (! $expense) {
+        abort(404, 'Expense not found');
+    }
+
+    return $expense;
+}
+
 }

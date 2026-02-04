@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Collection;
 
 class ExpenseRepository
 {
-    public function create(array $data): Expense
-    {
-        return Expense::create($data);
-    }
+   public function create(array $data): Expense
+{
+    return Expense::create($data);
+}
+
 
     public function getAllByUser(int $userId): Collection
     {
@@ -34,4 +35,19 @@ class ExpenseRepository
     {
         return (bool) $expense->delete();
     }
+
+    public function getAllByUser(int $userId)
+{
+    return Expense::where('user_id', $userId)
+        ->orderByDesc('expense_date')
+        ->get();
+}
+
+public function findByIdForUser(int $id, int $userId): ?Expense
+{
+    return Expense::where('id', $id)
+        ->where('user_id', $userId)
+        ->first();
+}
+
 }

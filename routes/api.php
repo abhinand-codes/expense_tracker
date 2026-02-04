@@ -1,10 +1,16 @@
 <?php
-use App\Http\Controllers\Api\AuthController;
+
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ExpenseController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::middleware('auth:api')->get('/me', function () {
-    return response()->json(auth('api')->user());
+Route::middleware('auth:api')->group(function () {
+    Route::get('/me', [AuthController::class, 'me']);
+    Route::post('/expenses', [ExpenseController::class, 'store']);
+
+    Route::get('/expenses', [ExpenseController::class, 'index']);
+Route::get('/expenses/{id}', [ExpenseController::class, 'show']);
 });
